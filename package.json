@@ -4,15 +4,14 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "wrangler dev",
     "deploy": "wrangler deploy"
   },
   "dependencies": {
-    "@modelcontextprotocol/server": "^1.17.5",
-    "agents": "^0.0.100",
-    "zod": "^3.25.76"
+    "@modelcontextprotocol/server": "2.0.0",
+    "agents": "latest",
+    "zod": "latest"
   },
   "devDependencies": {
-    "wrangler": "^4.31.0"
+    "wrangler": "latest"
   }
 }
