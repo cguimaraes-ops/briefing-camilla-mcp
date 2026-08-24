@@ -15,7 +15,7 @@ function createServer() {
     "consultar_briefing",
     {
       description:
-        "Consulta o briefing executivo diário da Camilla, obtido a partir do Google Apps Script.",
+        "Consulta o briefing executivo diario da Camilla, obtido a partir do Google Apps Script.",
       inputSchema: {},
     },
     async () => {
@@ -30,7 +30,10 @@ function createServer() {
             content: [
               {
                 type: "text",
-                text: `Erro ao consultar o briefing. HTTP ${resposta.status}.`,
+                text:
+                  "Erro ao consultar o briefing. HTTP " +
+                  resposta.status +
+                  ".",
               },
             ],
             isError: true,
@@ -52,7 +55,7 @@ function createServer() {
           content: [
             {
               type: "text",
-              text: `Erro ao consultar o briefing: ${String(erro)}`,
+              text: "Erro ao consultar o briefing: " + String(erro),
             },
           ],
           isError: true,
@@ -68,16 +71,10 @@ export default {
   async fetch(request: Request, env: unknown, ctx: ExecutionContext) {
     const url = new URL(request.url);
 
-    // ==========================================
-    // MCP
-    // ==========================================
     if (url.pathname === "/mcp") {
       return createMcpHandler(createServer)(request, env, ctx);
     }
 
-    // ==========================================
-    // BRIEFING — endpoint simples
-    // ==========================================
     if (url.pathname === "/briefing") {
       try {
         const resposta = await fetch(URL_BRIEFING, {
@@ -112,9 +109,6 @@ export default {
       }
     }
 
-    // ==========================================
-    // PÁGINA PRINCIPAL
-    // ==========================================
     return new Response(
       "Briefing Camilla MCP — online. Use /mcp ou /briefing.",
       {
