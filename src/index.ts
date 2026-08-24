@@ -30,7 +30,10 @@ function createServer() {
             content: [
               {
                 type: "text",
-                text: `Erro ao consultar o briefing. HTTP ${resposta.status}.`,
+                text:
+                  "Erro ao consultar o briefing. HTTP " +
+                  resposta.status +
+                  ".",
               },
             ],
             isError: true,
@@ -52,7 +55,7 @@ function createServer() {
           content: [
             {
               type: "text",
-              text: `Erro ao consultar o briefing: ${String(erro)}`,
+              text: "Erro ao consultar o briefing: " + String(erro),
             },
           ],
           isError: true,
@@ -68,16 +71,10 @@ export default {
   async fetch(request: Request, env: unknown, ctx: ExecutionContext) {
     const url = new URL(request.url);
 
-    // ============================================
-    // MCP — PRESERVADO
-    // ============================================
     if (url.pathname === "/mcp") {
       return createMcpHandler(createServer)(request, env, ctx);
     }
 
-    // ============================================
-    // BRIEFING — ACESSO DIRETO VIA GET
-    // ============================================
     if (url.pathname === "/briefing") {
       try {
         const resposta = await fetch(URL_BRIEFING, {
@@ -88,12 +85,16 @@ export default {
         if (!resposta.ok) {
           return new Response(
             JSON.stringify({
-              erro: `Erro ao consultar o briefing. HTTP ${resposta.status}.`,
+              erro:
+                "Erro ao consultar o briefing. HTTP " +
+                resposta.status +
+                ".",
             }),
             {
               status: 502,
               headers: {
                 "Content-Type": "application/json; charset=UTF-8",
+                "Cache-Control": "no-store",
                 "Access-Control-Allow-Origin": "*",
               },
             }
@@ -113,12 +114,13 @@ export default {
       } catch (erro) {
         return new Response(
           JSON.stringify({
-            erro: `Erro ao consultar o briefing: ${String(erro)}`,
+            erro: "Erro ao consultar o briefing: " + String(erro),
           }),
           {
             status: 500,
             headers: {
               "Content-Type": "application/json; charset=UTF-8",
+              "Cache-Control": "no-store",
               "Access-Control-Allow-Origin": "*",
             },
           }
@@ -126,9 +128,6 @@ export default {
       }
     }
 
-    // ============================================
-    // PÁGINA PRINCIPAL
-    // ============================================
     return new Response("Briefing Camilla MCP", {
       status: 200,
       headers: {
