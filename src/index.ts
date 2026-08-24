@@ -1,12 +1,13 @@
-import { McpServer } from "@modelcontextprotocol/server";
 import { createMcpHandler } from "agents/mcp/server";
+import { McpServer } from "@modelcontextprotocol/server";
+import { z } from "zod";
 
-const BRIEFING_URL =
-  "https://briefind-camilla.cguimaraes.workers.dev/";
+const URL_BRIEFING =
+  "https://script.google.com/macros/s/AKfycbzElsr8aQX4zf4ZVpmprNNU5ffmIZowXOogYkLGXT3Qnmy6upS7MU8lkQEcQ7JQVmjl/exec";
 
 function createServer() {
   const server = new McpServer({
-    name: "briefing-camilla",
+    name: "Briefing Camilla",
     version: "1.0.0",
   });
 
@@ -14,32 +15,35 @@ function createServer() {
     "consultar_briefing",
     {
       description:
-        "Consulta o briefing diário da Camilla. Retorna prioridades críticas, tarefas de hoje, próximos 7 dias, dinheiro em risco, follow-ups, rotina de Customer Success e foco do dia.",
+        "Consulta o briefing executivo diário da Camilla, obtido a partir do Google Apps Script.",
       inputSchema: {},
     },
     async () => {
       try {
-        const resposta = await fetch(BRIEFING_URL);
+        const resposta = await fetch(URL_BRIEFING, {
+          method: "GET",
+          redirect: "follow",
+        });
 
         if (!resposta.ok) {
           return {
             content: [
               {
                 type: "text",
-                text: `Não foi possível consultar o briefing. HTTP ${resposta.status}.`,
+                text: `Erro ao consultar o briefing. HTTP ${resposta.status}.`,
               },
             ],
             isError: true,
           };
         }
 
-        const dados = await resposta.text();
+        const texto = await resposta.text();
 
         return {
           content: [
             {
               type: "text",
-              text: dados,
+              text: texto,
             },
           ],
         };
@@ -62,6 +66,17 @@ function createServer() {
 
 export default {
   fetch(request: Request, env: unknown, ctx: ExecutionContext) {
-    return createMcpHandler(createServer)(request, env, ctx);
+    const url = new URL(request.url);
+
+    if (url.pathname === "/mcp") {
+      return createMcpHandler(createServer)(request, env, ctx);
+    }
+
+    return new Response("Briefing Camilla MCP", {
+      status: 200,
+      headers: {
+        "Content-Type": "text/plain; charset=UTF-8",
+      },
+    });
   },
 };
