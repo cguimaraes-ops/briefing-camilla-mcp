@@ -1,6 +1,6 @@
+```typescript
 import { createMcpHandler } from "agents/mcp/server";
 import { McpServer } from "@modelcontextprotocol/server";
-import { z } from "zod";
 
 const URL_BRIEFING =
   "https://script.google.com/macros/s/AKfycbzElsr8aQX4zf4ZVpmprNNU5ffmIZowXOogYkLGXT3Qnmy6upS7MU8lkQEcQ7JQVmjl/exec";
@@ -65,18 +65,65 @@ function createServer() {
 }
 
 export default {
-  fetch(request: Request, env: unknown, ctx: ExecutionContext) {
+  async fetch(request: Request, env: unknown, ctx: ExecutionContext) {
     const url = new URL(request.url);
 
+    // ==========================================
+    // MCP
+    // ==========================================
     if (url.pathname === "/mcp") {
       return createMcpHandler(createServer)(request, env, ctx);
     }
 
-    return new Response("Briefing Camilla MCP", {
-      status: 200,
-      headers: {
-        "Content-Type": "text/plain; charset=UTF-8",
-      },
-    });
+    // ==========================================
+    // BRIEFING — endpoint simples
+    // ==========================================
+    if (url.pathname === "/briefing") {
+      try {
+        const resposta = await fetch(URL_BRIEFING, {
+          method: "GET",
+          redirect: "follow",
+        });
+
+        const texto = await resposta.text();
+
+        return new Response(texto, {
+          status: resposta.status,
+          headers: {
+            "Content-Type": "application/json; charset=UTF-8",
+            "Access-Control-Allow-Origin": "*",
+            "Cache-Control": "no-store",
+          },
+        });
+      } catch (erro) {
+        return new Response(
+          JSON.stringify({
+            erro: true,
+            mensagem: String(erro),
+          }),
+          {
+            status: 500,
+            headers: {
+              "Content-Type": "application/json; charset=UTF-8",
+              "Access-Control-Allow-Origin": "*",
+            },
+          }
+        );
+      }
+    }
+
+    // ==========================================
+    // PÁGINA PRINCIPAL
+    // ==========================================
+    return new Response(
+      "Briefing Camilla MCP — online. Use /mcp ou /briefing.",
+      {
+        status: 200,
+        headers: {
+          "Content-Type": "text/plain; charset=UTF-8",
+        },
+      }
+    );
   },
 };
+```
