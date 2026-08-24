@@ -1,4 +1,3 @@
-```typescript
 import { createMcpHandler } from "agents/mcp/server";
 import { McpServer } from "@modelcontextprotocol/server";
 
@@ -83,4 +82,3 @@ export default {
     });
   },
 };
-```
