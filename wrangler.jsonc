@@ -1,0 +1,6 @@
+{
+  "$schema": "https://unpkg.com/wrangler@latest/config-schema.json",
+  "name": "briefind-camilla",
+  "main": "src/index.ts",
+  "compatibility_date": "2026-08-24"
+}
